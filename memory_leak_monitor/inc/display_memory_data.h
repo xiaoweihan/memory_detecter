@@ -15,6 +15,10 @@ public:
 
     void DisplayMemoryDataInfo(void);
 
+
+private:
+    void DisplayHeaderInfo();
+
 private:
     CSharedMemoryDataManager* m_pDataManager{nullptr};
 

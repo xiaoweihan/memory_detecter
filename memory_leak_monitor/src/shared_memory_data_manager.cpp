@@ -76,8 +76,8 @@ bool CSharedMemoryDataManager::AddMemoryLeakElement(const LP_SHARED_MEMORY_DATA 
 
     if (bHasException)
     {
-        auto strContent = Utility::ConvertMemoryDataToString(pExceptionData);
-        m_pLogger->GetFileLogger().error("Exception DataInfo:%s. [%s:%d]", strContent.c_str(), __FILE__, __LINE__);
+        //auto strContent = Utility::ConvertMemoryDataToString(pExceptionData);
+        //m_pLogger->GetFileLogger().error("Exception DataInfo:%s. [%s:%d]", strContent.c_str(), __FILE__, __LINE__);
         std::lock_guard<std::mutex> Locker(m_ExceptionMutex);
         m_ExceptionLeakInfo.push_back(pExceptionData);
     }
@@ -109,8 +109,8 @@ bool CSharedMemoryDataManager::DelMemoryLeakElement(const LP_SHARED_MEMORY_DATA 
 
     if (bHasException)
     {
-        auto strContent = Utility::ConvertMemoryDataToString(pExceptionData);
-        m_pLogger->GetFileLogger().error("Exception DataInfo:%s. [%s:%d]", strContent.c_str(), __FILE__, __LINE__);
+        //auto strContent = Utility::ConvertMemoryDataToString(pExceptionData);
+        //m_pLogger->GetFileLogger().error("Exception DataInfo:%s. [%s:%d]", strContent.c_str(), __FILE__, __LINE__);
         std::lock_guard<std::mutex> Locker(m_ExceptionMutex);
         m_ExceptionLeakInfo.push_back(pExceptionData);
     }

@@ -5,7 +5,6 @@
 extern "C"
 {
 #endif
-
 __attribute((constructor)) void memory_leak_hunter_init();
 
 __attribute((destructor)) void memory_leak_hunter_fini();

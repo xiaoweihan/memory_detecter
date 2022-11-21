@@ -1,67 +1,44 @@
 #include "display_memory_data.h"
+#include <iostream>
 #include <vector>
 #include <new>
+#include <time.h>
 #include <string.h>
-#include <stdio.h>
+#include <iomanip>
 #include "shared_memory_data_manager.h"
 #include "utility.h"
-using std::vector;
+
 
 #define NONE "\033[m"
 #define RED "\033[0;32;31m"
+#define LIGHT_RED "\033[1;31m"
 #define GREEN "\033[0;32;32m"
+#define LIGHT_GREEN "\033[1;32m"
+#define BLUE "\033[0;32;34m"
+#define LIGHT_BLUE "\033[1;34m"
+#define DARY_GRAY "\033[1;30m"
+#define CYAN "\033[0;36m"
+#define LIGHT_CYAN "\033[1;36m"
+#define PURPLE "\033[0;35m"
+#define LIGHT_PURPLE "\033[1;35m"
+#define BROWN "\033[0;33m"
+#define YELLOW "\033[1;33m"
+#define LIGHT_GRAY "\033[0;37m"
+#define WHITE "\033[1;37m"
 
-static void print_red_content(const char *szContent)
+using namespace std;
+// 标题头的长度
+constexpr int HEADER_LEN = 120;
+
+void CMemoryDataDisplayer::DisplayHeaderInfo()
 {
-    if (nullptr == szContent)
-    {
-        return;
-    }
-    size_t uBufferLen = strlen(szContent) + 100;
-    char *pBuffer = new (std::nothrow) char[uBufferLen];
-    if (nullptr == pBuffer)
-    {
-        return;
-    }
-
-    snprintf(pBuffer, uBufferLen, "%s%s%s\n", RED, szContent, NONE);
-
-    printf(pBuffer);
-
-    delete pBuffer;
-    pBuffer = nullptr;
-}
-
-static void print_green_content(const char *szContent)
-{
-    if (nullptr == szContent)
-    {
-        return;
-    }
-    size_t uBufferLen = strlen(szContent) + 100;
-    char *pBuffer = new (std::nothrow) char[uBufferLen];
-    if (nullptr == pBuffer)
-    {
-        return;
-    }
-    snprintf(pBuffer, uBufferLen, "%s%s%s\n", GREEN, szContent, NONE);
-    printf(pBuffer);
-    delete pBuffer;
-    pBuffer = nullptr;
-}
-
-void CMemoryDataDisplayer::DisplayMemoryDataInfo(void)
-{
-    if (nullptr == m_pDataManager)
-    {
-        return;
-    }
-
-    char szBorder[] = "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
-    char szSpliter[] = "*********************************************************************************************";
-
-    print_green_content(szBorder);
-
+    
+    cout << left << BROWN << "监控进程信息" << NONE << endl;
+    cout.width(HEADER_LEN);
+    cout.fill('*'); 
+    // 输出标题头
+    cout << left << BROWN << "*" << NONE << endl;
+    
     // 获取数据头
     MEMORY_EVENT_HEADER Header;
     m_pDataManager->GetMemoryDataHeader(Header);
@@ -79,48 +56,149 @@ void CMemoryDataDisplayer::DisplayMemoryDataInfo(void)
     }
 
     //打印数据头
-    char szBuffer[1024] = {0};
-
     if (0 != Header.processID)
     {
-        snprintf(szBuffer, sizeof(szBuffer), "ProcessPID:[%d]    StartTime:[%s]     EndTime[%s]", Header.processID, strStartTime.c_str(), strEndTime.c_str());
+        // 输出进程的ID
+        cout << left << BROWN << "ProcessPID: " << Header.processID << NONE << endl;
+        // 输出进程的开始时间
+        cout << left << BROWN << "StartTime: " << strStartTime << NONE << endl;
+        // 输出进程的结束时间
+        cout << left << BROWN << "EndTime: " << strEndTime << NONE << endl;
     }
     else
     {
-        snprintf(szBuffer, sizeof(szBuffer), "ProcessPID:[%s]    StartTime:[%s]     EndTime[%s]", "None", strStartTime.c_str(), strEndTime.c_str());
+        // 输出进程的ID
+        cout << left << BROWN << "ProcessPID: " << "None" << NONE << endl;
+        // 输出进程的开始时间 
+        cout << left << BROWN << "StartTime: " << strStartTime << NONE << endl;
+        // 输出进程的结束时间
+        cout << left << BROWN << "EndTime: " << strEndTime << NONE << endl;
     }
-    print_green_content(szBuffer);
-    print_green_content(szSpliter);
+
+    cout.width(HEADER_LEN);
+    cout.fill('*'); 
+    // 分割线
+    cout << left << BROWN << "*" << NONE << endl;
+
+    cout << endl;
+
+}
+
+void CMemoryDataDisplayer::DisplayMemoryDataInfo(void)
+{
+    if (nullptr == m_pDataManager)
+    {
+        return;
+    }
+    // 输出信息描述
+    DisplayHeaderInfo();
+
+    time_t CurrentTime = time(nullptr);
+    // 打印内存统计信息
+    cout << left << GREEN << "内存使用信息" << Utility::ConvertTimeToString(&CurrentTime) << NONE << endl;
+    
+    cout.width(HEADER_LEN);
+    cout.fill('*'); 
+    // 分割线
+    cout << WHITE << "*" << NONE << endl;
+
     vector<LP_SHARED_MEMORY_DATA> NormalDataArray;
     NormalDataArray.clear();
     m_pDataManager->GetMemoryLeakElement(NormalDataArray);
+    //打印统计信息
+    cout << left << GREEN << "Total Num: " << NormalDataArray.size() << NONE << endl;
+
+    //打印标题头
+    cout << left << GREEN << setw(HEADER_LEN / 5) << setfill(' ') << "ProcessID" << NONE;
+    cout << left << GREEN << setw(HEADER_LEN / 5) << setfill(' ') << "OccureTime" << NONE;
+    cout << left << GREEN << setw(HEADER_LEN / 5) << setfill(' ') << "EventType" << NONE;
+    cout << left << GREEN << setw(HEADER_LEN / 5) << setfill(' ') << "Address" << NONE;
+    cout << left << GREEN << setw(HEADER_LEN / 5) << setfill(' ') << "CallStack" << NONE;
 
     for (auto &Element : NormalDataArray)
-    {
-        auto strContent = Utility::ConvertMemoryDataToString(Element);
-        print_green_content(strContent.c_str());
+    {   
+        cout << endl;
+        cout << left << GREEN << setw(HEADER_LEN / 5) << setfill(' ') << Element->eventProcessPID << NONE;
+        cout << left << GREEN << setw(HEADER_LEN / 5) << setfill(' ') << Utility::ConvertTimeToString(&Element->eventoccureTime) << NONE;
+        cout << left << GREEN << setw(HEADER_LEN / 5) << setfill(' ') << Utility::ConvertEventToString(Element->eumEventType) << NONE;
+        cout << left << GREEN << setw(HEADER_LEN / 5) << setfill(' ') << (void*)(Element->pEventAddress) << NONE;
+        
+        vector<string> CallStackVec;
+        Utility::CovertCallStackToString(Element->CallStackArray,MAX_CALL_STACK_LEVEL,CallStackVec);
+        if (CallStackVec.empty())
+        {
+            continue;
+        }
+
+        cout << left << GREEN << setw(HEADER_LEN / 5) << setfill(' ') << CallStackVec[0] << NONE;   
+        for (size_t i = 1; i < CallStackVec.size(); ++i)
+        {
+            cout << endl;
+            cout << left << GREEN << setw(HEADER_LEN / 5 * 4) << setfill(' ') << " " << setw(HEADER_LEN / 5) << setfill(' ') << CallStackVec[i] << NONE;  
+        }
+        
     }
 
-    char szNormalTotal[260] = {0};
-    snprintf(szNormalTotal, sizeof(szNormalTotal), "Total Num:[%zu]", NormalDataArray.size());
-    print_green_content(szNormalTotal);
+    cout << endl;
+    cout.width(HEADER_LEN);
+    cout.fill('*'); 
+    // 分割线
+    cout << WHITE << "*" << NONE << endl;
 
-    print_green_content(szSpliter);
+
     vector<LP_SHARED_MEMORY_DATA> ExceptionDataArray;
     ExceptionDataArray.clear();
     m_pDataManager->GetExceptionMemoryLeakElement(ExceptionDataArray);
 
+    cout << endl;
+    // 打印内存统计信息
+    cout << left << RED << "异常内存使用信息" << Utility::ConvertTimeToString(&CurrentTime) << NONE << endl;
+    cout.width(HEADER_LEN);
+    cout.fill('*'); 
+    // 分割线
+    cout << WHITE << "*" << NONE << endl;
+    //打印统计信息
+    cout << left << RED << "Exception Total Num: " << ExceptionDataArray.size() << NONE << endl;
+
+
+    //打印标题头
+    cout << left << RED << setw(HEADER_LEN / 5) << setfill(' ') << "ProcessID" << NONE;
+    cout << left << RED << setw(HEADER_LEN / 5) << setfill(' ') << "OccureTime" << NONE;
+    cout << left << RED << setw(HEADER_LEN / 5) << setfill(' ') << "EventType" << NONE;
+    cout << left << RED << setw(HEADER_LEN / 5) << setfill(' ') << "Address" << NONE;
+    cout << left << RED << setw(HEADER_LEN / 5) << setfill(' ') << "CallStack" << NONE;
+    
     for (auto &Element : ExceptionDataArray)
     {
-        auto strContent = Utility::ConvertMemoryDataToString(Element);
-        print_red_content(strContent.c_str());
+        cout << endl;
+        cout << left << RED << setw(HEADER_LEN / 5) << setfill(' ') << Element->eventProcessPID << NONE;
+        cout << left << RED << setw(HEADER_LEN / 5) << setfill(' ') << Utility::ConvertTimeToString(&Element->eventoccureTime) << NONE;
+        cout << left << RED << setw(HEADER_LEN / 5) << setfill(' ') << Utility::ConvertEventToString(Element->eumEventType) << NONE;
+        cout << left << RED << setw(HEADER_LEN / 5) << setfill(' ') << (void*)(Element->pEventAddress) << NONE;
+        
+
+        vector<string> CallStackVec;
+        Utility::CovertCallStackToString(Element->CallStackArray,MAX_CALL_STACK_LEVEL,CallStackVec);
+        if (CallStackVec.empty())
+        {
+            continue;
+        }
+        cout << left << GREEN << setw(HEADER_LEN / 5) << setfill(' ') << CallStackVec[0] << NONE;   
+        for (size_t i = 1; i < CallStackVec.size(); ++i)
+        {
+            cout << endl;
+            cout << left << GREEN << setw(HEADER_LEN / 5 * 4) << setfill(' ') << " " << setw(HEADER_LEN / 5) << setfill(' ') << CallStackVec[i] << NONE;  
+        }    
     }
+    
+    cout << endl;
+    cout.width(HEADER_LEN);
+    cout.fill('*'); 
+    // 分割线
+    cout << WHITE << "*" << NONE << endl;
 
-    char szExceptionTotal[260] = {0};
-    snprintf(szExceptionTotal, sizeof(szExceptionTotal), "Exception Total Num:[%zu]", ExceptionDataArray.size());
-    print_red_content(szExceptionTotal);
-    print_green_content(szBorder);
-
+    cout << endl;
+    
     for (auto &Element : NormalDataArray)
     {
         if (nullptr != Element)

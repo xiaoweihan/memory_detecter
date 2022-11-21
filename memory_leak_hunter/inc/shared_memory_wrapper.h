@@ -5,7 +5,6 @@
 extern "C"
 {
 #endif
-
     int open_shm(const char* szName);
 
     int create_shm(const char* szName,unsigned int nSize);

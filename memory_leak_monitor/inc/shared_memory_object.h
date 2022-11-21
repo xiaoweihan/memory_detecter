@@ -10,7 +10,7 @@ public:
     virtual ~CSharedMemoryObject();
 
 protected:
-    CLogger* m_pLogger;
+    CLogger* m_pLogger{nullptr};
 
 };
 

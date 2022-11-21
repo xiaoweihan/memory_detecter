@@ -1,24 +1,22 @@
 #include "utility.h"
 #include <stdio.h>
-#include <new>
 #include <string.h>
 #include <vector>
+#include <sstream>
 
-
-static std::string CovertCallStackToString(LP_CALL_STACK_ELEMENT pCallStackArray,size_t uArraySize)
+void Utility::CovertCallStackToString(LP_CALL_STACK_ELEMENT pCallStackArray,size_t uArraySize,std::vector<std::string>& CallStackVec)
 {
-    std::string strResult;
 
+    CallStackVec.clear();
     for (size_t i = 0; i < uArraySize; ++i)
     {
         char szBuffer[1024] = {0};
-        snprintf(szBuffer,sizeof(szBuffer),"%p : (%s+0x%x) [%p]\n", pCallStackArray[i].uPC,pCallStackArray[i].szFrameName ,pCallStackArray[i].uOffset, pCallStackArray[i].uPC);
-        strResult.append(szBuffer);
+        snprintf(szBuffer,sizeof(szBuffer),"%p : (%s+0x%x) [%p]", pCallStackArray[i].uPC,pCallStackArray[i].szFrameName ,pCallStackArray[i].uOffset, pCallStackArray[i].uPC);
+        CallStackVec.emplace_back(szBuffer);
     }
-    return strResult;
 }
 
-static std::string CovertEventToString(MEMORY_EVENT EventType)
+std::string Utility::ConvertEventToString(MEMORY_EVENT EventType)
 {
     std::string strContent;
     switch (EventType)
@@ -64,27 +62,4 @@ std::string Utility::ConvertTimeToString(const time_t* pCovertTime)
 
 }
 
-std::string Utility::ConvertMemoryDataToString(const LP_SHARED_MEMORY_DATA pData)
-{
-    if (nullptr == pData)
-    {
-        return std::string("");
-    }
-
-    char* pBuffer = new (std::nothrow) char[4096];
-    if (nullptr == pBuffer)
-    {
-        return std::string("");
-    }
-    memset(pBuffer,0,4096);
-
-    snprintf(pBuffer,4096,"OccureTime:[%s],EventType:[%s],ProcessID:[%d],Address:[%p],CallStack:[%s].",ConvertTimeToString(&pData->eventoccureTime).c_str(),
-             CovertEventToString(pData->eumEventType).c_str(),pData->eventProcessPID,pData->pEventAddress,CovertCallStackToString(pData->CallStackArray,MAX_CALL_STACK_LEVEL).c_str());
-
-    std::string strResult(pBuffer);
-
-    delete[] pBuffer;
-    pBuffer = nullptr;
-    return strResult;
-}
 

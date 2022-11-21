@@ -31,7 +31,7 @@ enum class MEMORY_EVENT
 
 };
 
-//共享内存去索引
+//共享内存区索引
 struct _shared_memory_header
 {
     // 用于进程间同步
@@ -49,7 +49,11 @@ struct _shared_memory_header
     // 数据区的写索引
     unsigned int nWriteIndex;
 
-    _shared_memory_header():nDataNum(MAX_DATA_LENGTH),processStartTime(0),processEndTime(0),processPID(0),nReadIndex(0),nWriteIndex(0)
+    _shared_memory_header():nDataNum(MAX_DATA_LENGTH),
+                            processStartTime(0),
+                            processEndTime(0),
+                            processPID(0),nReadIndex(0),
+                            nWriteIndex(0)
     {
 
     }
@@ -58,7 +62,6 @@ struct _shared_memory_header
     _shared_memory_header& operator=(const _shared_memory_header& CopyValue) = delete;
 
 };
-
 using SHARED_MEMORY_HEADER = _shared_memory_header;
 using LP_SHARED_MEMORY_HEADER = _shared_memory_header*;
 
@@ -75,8 +78,6 @@ struct _call_stack_element
         memset(szFrameName,0,sizeof(szFrameName));
     }
 };
-
-
 using CALL_STACK_ELEMENT = _call_stack_element;
 using LP_CALL_STACK_ELEMENT = _call_stack_element*;
 
@@ -93,7 +94,6 @@ struct _shared_memory_data
     // 事件的调用堆栈
     CALL_STACK_ELEMENT CallStackArray[MAX_CALL_STACK_LEVEL];
 };
-
 using SHARED_MEMORY_DATA = _shared_memory_data;
 using LP_SHARED_MEMORY_DATA = _shared_memory_data*;
 

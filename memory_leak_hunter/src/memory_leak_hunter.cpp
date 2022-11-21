@@ -141,11 +141,11 @@ void *malloc(size_t uSize)
     {
         return NULL;
     }
-
+    
+    // 调用真正的内存申请
     void *pResult = s_preal_mallocfun(uSize);
 
     pthread_mutex_lock(&s_Mutex);
-
     SHARED_MEMORY_DATA TmpData;
     TmpData.eventoccureTime = time(NULL);
     TmpData.eumEventType = MEMORY_EVENT::MALLOC_EVENT;
